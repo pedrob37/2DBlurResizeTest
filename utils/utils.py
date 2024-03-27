@@ -24,7 +24,7 @@ def save_img(image, affine, filename):
     nib.save(nifti_img, filename)
 
 
-class RandBlurd(RandomizableTransform, MapTransform, InvertibleTransform):
+class Jeff(RandomizableTransform, MapTransform, InvertibleTransform):
     """
     Dictionary-based wrapper of :py:class:`monai.transforms.GaussianSmooth`.
 
@@ -45,30 +45,29 @@ class RandBlurd(RandomizableTransform, MapTransform, InvertibleTransform):
         self,
         keys: KeysCollection,
         target_shape=(512, 512),
-        approx: str = "erf",
         prob: float = 0.1,
-        blur_factor: float = 2,
-        mode: int = 1,
-        padding_mode: str = GridSamplePadMode.REFLECTION,
+        blur_factor_min: float = 1.5,
+        blur_factor_max: float = 4,
         do_blur: bool = False,
         allow_missing_keys: bool = False,
         device=None,
     ) -> None:
         MapTransform.__init__(self, keys, allow_missing_keys)
         RandomizableTransform.__init__(self, prob)
-        self.mode = mode
-        self.padding_mode = padding_mode
         self.do_blur = do_blur
         self.device = device
         self.target_shape = target_shape
-        self.blur_factor = blur_factor
+        self.blur_factor_min = blur_factor_min
+        self.blur_factor_max = blur_factor_max
 
     def gaussian_blur(self, img: NdarrayOrTensor):
         # Pick uniformly sampled multiplicative factor between 0.8 and 1.0
         alpha_factor = np.random.uniform(low=0.8, high=1.0)
+        # Pick uniformly sampled multiplicative factor between blur_factor_min and blur_factor_max
+        blur_factor = np.random.uniform(low=self.blur_factor_min, high=self.blur_factor_max)
         resampling_adjustment_factor = 0  # np.random.uniform(low=0.5, high=1.0) * 2 * np.log(10) / (2 * np.pi)
         sigma_blur = (
-            2 * np.log(10) * alpha_factor * self.blur_factor / (2 * np.pi)
+            2 * np.log(10) * alpha_factor * blur_factor / (2 * np.pi)
             - resampling_adjustment_factor
         )
         # Intelligent way of removing channel

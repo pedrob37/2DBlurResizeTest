@@ -7,7 +7,7 @@ from monai.transforms import (Compose,
                               SpatialCropd,
                               RandSpatialCropSamplesd, SqueezeDimd, AddChanneld, ScaleIntensityd, CopyItemsd
                               )
-from utils.utils import RandBlurd, CustomResized
+from utils.utils import Jeff, CustomResized
 import os
 
 test_transforms = Compose([
@@ -21,7 +21,7 @@ test_transforms = Compose([
     SqueezeDimd(keys=["image"], dim=0),
     CustomResized(keys=["image"], target_shape=(512, 512)),
     CopyItemsd(keys=["image"], times=1),
-    RandBlurd(keys=["image"], blur_factor=2, do_blur=True, prob=1.0),
+    Jeff(keys=["image"], blur_factor_min=1, blur_factor_max=4, do_blur=True, prob=1.0),
     ScaleIntensityd(
         keys=["image", "image_0"], minv=0.0, maxv=1.0)
     ]
